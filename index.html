@@ -503,13 +503,13 @@ function animate() {
     if (moveForward || moveBackward) velocity.z -= direction.z * 10.0 * delta;
     if (moveLeft || moveRight) velocity.x -= direction.x * 10.0 * delta;
 
-    camera.translateX(velocity.x * delta);
-    camera.translateZ(velocity.z * delta);
+    // Apply movement relative to camera's rotation
+    camera.position.x += velocity.x * delta * Math.sin(camera.rotation.y) + velocity.z * delta * Math.cos(camera.rotation.y);
+    camera.position.z += velocity.x * delta * -Math.cos(camera.rotation.y) + velocity.z * delta * Math.sin(camera.rotation.y);
 
     renderer.render(scene, camera);
     prevTime = time;
 }
-
 init();
 animate();
 
