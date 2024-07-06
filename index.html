@@ -487,6 +487,9 @@ function takeScreenshot() {
     link.click();
 }
 
+// Add this variable at the top of your script, with the other global variables
+let movementSpeed = 5.0; // Adjust this value to change the movement speed
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -500,22 +503,22 @@ function animate() {
     direction.z = Math.cos(camera.rotation.y);
     direction.x = Math.sin(camera.rotation.y);
 
-    // Apply movement
+    // Apply movement with adjusted speed
     if (moveForward) {
-        camera.position.x -= direction.x * 10.0 * delta;
-        camera.position.z -= direction.z * 10.0 * delta;
+        camera.position.x -= direction.x * movementSpeed * delta;
+        camera.position.z -= direction.z * movementSpeed * delta;
     }
     if (moveBackward) {
-        camera.position.x += direction.x * 10.0 * delta;
-        camera.position.z += direction.z * 10.0 * delta;
+        camera.position.x += direction.x * movementSpeed * delta;
+        camera.position.z += direction.z * movementSpeed * delta;
     }
     if (moveLeft) {
-        camera.position.x -= direction.z * 10.0 * delta;
-        camera.position.z += direction.x * 10.0 * delta;
+        camera.position.x -= direction.z * movementSpeed * delta;
+        camera.position.z += direction.x * movementSpeed * delta;
     }
     if (moveRight) {
-        camera.position.x += direction.z * 10.0 * delta;
-        camera.position.z -= direction.x * 10.0 * delta;
+        camera.position.x += direction.z * movementSpeed * delta;
+        camera.position.z -= direction.x * movementSpeed * delta;
     }
 
     renderer.render(scene, camera);
