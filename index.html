@@ -3,10 +3,11 @@
 <head>
     <title>WaddleCraft - GMBase Minecraft-Inspired World</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Fredoka+One&family=Press+Start+2P&display=swap">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { 
-            margin: 0; 
-            overflow: hidden; 
+        body {
+            margin: 0;
+            overflow: hidden;
             font-family: 'Fredoka One', Arial, sans-serif;
             background-color: #87ceeb;
         }
@@ -21,25 +22,26 @@
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            height: 60px;
         }
         #info {
-            flex-grow: 1;
             display: flex;
             align-items: center;
             color: black;
         }
         #info h1 {
-            font-size: 32px;
+            font-size: 24px;
             margin: 0;
             font-family: 'Permanent Marker', Arial, sans-serif;
             letter-spacing: 2px;
         }
         #control-panel {
             display: flex;
-            gap: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
             align-items: center;
         }
         #crosshair {
@@ -94,9 +96,6 @@
             transition: background-color 0.3s, transform 0.3s;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        #screenshot-btn {
-            background-color: rgba(76, 175, 80, 0.8);
-        }
         #screenshot-btn:hover {
             background-color: rgba(69, 160, 73, 0.8);
             transform: scale(1.05);
@@ -128,8 +127,8 @@
         }
         #gmb-presents {
             font-family: 'Press Start 2P', Arial, sans-serif;
-            font-size: 16px;
-            margin-right: 15px;
+            font-size: 12px;
+            margin-right: 10px;
         }
         #info-modal {
             display: none;
@@ -164,13 +163,24 @@
             text-decoration: none;
             cursor: pointer;
         }
+        @media (max-width: 600px) {
+            #info h1 {
+                font-size: 18px;
+            }
+            #logo {
+                width: 50px;
+            }
+            #info-modal-content {
+                width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="info-panel">
         <div id="info">
             <span id="gmb-presents">GMB PRESENTS:</span>
-            <img src="https://i.ibb.co/prvkTjZ/GMB-rainbow-glasses-removebg-preview.png" alt="GMB-rainbow-glasses" style="height: 50px; margin-right: 15px;">
+            <img src="https://i.ibb.co/prvkTjZ/GMB-rainbow-glasses-removebg-preview.png" alt="GMB-rainbow-glasses" style="height: 40px; margin-right: 10px;">
             <h1>DuckCraft</h1>
         </div>
         <div id="control-panel">
@@ -285,7 +295,50 @@
                 renderer.domElement.requestPointerLock();
             }
         });
+
+        // Touch controls
+        let touchStartX = 0, touchStartY = 0, touchMoveX = 0, touchMoveY = 0;
+        let pinchDistanceStart = 0, pinchDistanceEnd = 0;
+
+        function getTouchDistance(touch1, touch2) {
+            return Math.sqrt(Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2));
+        }
+
+        renderer.domElement.addEventListener('touchstart', (event) => {
+            if (event.touches.length === 1) {
+                touchStartX = event.touches[0].clientX;
+                touchStartY = event.touches[0].clientY;
+            } else if (event.touches.length === 2) {
+                pinchDistanceStart = getTouchDistance(event.touches[0], event.touches[1]);
+            }
+        });
+
+        renderer.domElement.addEventListener('touchmove', (event) => {
+            if (event.touches.length === 1) {
+                touchMoveX = event.touches[0].clientX - touchStartX;
+                touchMoveY = event.touches[0].clientY - touchStartY;
+
+                camera.rotation.y -= touchMoveX * 0.002;
+                camera.rotation.x -= touchMoveY * 0.002;
+                camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+
+                touchStartX = event.touches[0].clientX;
+                touchStartY = event.touches[0].clientY;
+            } else if (event.touches.length === 2) {
+                pinchDistanceEnd = getTouchDistance(event.touches[0], event.touches[1]);
+                const zoomFactor = (pinchDistanceStart - pinchDistanceEnd) * 0.01;
+                camera.position.z += zoomFactor;
+                pinchDistanceStart = pinchDistanceEnd;
+            }
+        });
+
+        renderer.domElement.addEventListener('touchend', (event) => {
+            if (event.touches.length < 2) {
+                pinchDistanceStart = 0;
+            }
+        });
     }
+
     function createBlock(x, y, z, color, shape, size, texture) {
         let geometry;
         switch (shape) {
@@ -503,46 +556,47 @@
         link.click();
     }
 
-  function moveCamera(delta) {
-    // Get the camera's forward and right directions
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+    function moveCamera(delta) {
+        // Get the camera's forward and right directions
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
 
-    // Calculate the movement vector
-    const moveVector = new THREE.Vector3(0, 0, 0);
+        // Calculate the movement vector
+        const moveVector = new THREE.Vector3(0, 0, 0);
 
-    if (moveForward) moveVector.add(forward);
-    if (moveBackward) moveVector.sub(forward);
-    if (moveLeft) moveVector.sub(right);
-    if (moveRight) moveVector.add(right);
+        if (moveForward) moveVector.add(forward);
+        if (moveBackward) moveVector.sub(forward);
+        if (moveLeft) moveVector.sub(right);
+        if (moveRight) moveVector.add(right);
 
-    // Normalize the movement vector to ensure consistent speed in all directions
-    if (moveVector.lengthSq() > 0) {
-        moveVector.normalize();
+        // Normalize the movement vector to ensure consistent speed in all directions
+        if (moveVector.lengthSq() > 0) {
+            moveVector.normalize();
+        }
+
+        // Apply movement speed
+        moveVector.multiplyScalar(movementSpeed * delta);
+
+        // Apply horizontal movement
+        camera.position.add(moveVector);
+
+        // Apply vertical movement separately
+        if (moveUp) camera.position.y += movementSpeed * delta;
+        if (moveDown) camera.position.y -= movementSpeed * delta;
     }
 
-    // Apply movement speed
-    moveVector.multiplyScalar(movementSpeed * delta);
-
-    // Apply horizontal movement
-    camera.position.add(moveVector);
-
-    // Apply vertical movement separately
-    if (moveUp) camera.position.y += movementSpeed * delta;
-    if (moveDown) camera.position.y -= movementSpeed * delta;
-}
-
     function animate() {
-    requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
 
-    const time = performance.now();
-    const delta = (time - prevTime) / 1000;
+        const time = performance.now();
+        const delta = (time - prevTime) / 1000;
 
-    moveCamera(delta);
+        moveCamera(delta);
 
-    renderer.render(scene, camera);
-    prevTime = time;
-}
+        renderer.render(scene, camera);
+        prevTime = time;
+    }
+
     init();
     animate();
 
