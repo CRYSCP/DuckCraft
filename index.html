@@ -496,19 +496,27 @@ function animate() {
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
 
-    // Correct direction assignment
-    direction.z = Number(moveForward) - Number(moveBackward);
-    direction.x = Number(moveRight) - Number(moveLeft);
-    direction.normalize();
+    // Create a direction vector based on camera's rotation
+    direction.z = Math.cos(camera.rotation.y);
+    direction.x = Math.sin(camera.rotation.y);
 
-    // Apply movement relative to camera orientation
-    if (moveForward || moveBackward) velocity.z -= direction.z * 10.0 * delta;
-    if (moveLeft || moveRight) velocity.x -= direction.x * 10.0 * delta;
-
-    // Move the camera
-    const movementVector = new THREE.Vector3(velocity.x * delta, 0, velocity.z * delta);
-    movementVector.applyQuaternion(camera.quaternion);
-    camera.position.add(movementVector);
+    // Apply movement
+    if (moveForward) {
+        camera.position.x -= direction.x * 10.0 * delta;
+        camera.position.z -= direction.z * 10.0 * delta;
+    }
+    if (moveBackward) {
+        camera.position.x += direction.x * 10.0 * delta;
+        camera.position.z += direction.z * 10.0 * delta;
+    }
+    if (moveLeft) {
+        camera.position.x -= direction.z * 10.0 * delta;
+        camera.position.z += direction.x * 10.0 * delta;
+    }
+    if (moveRight) {
+        camera.position.x += direction.z * 10.0 * delta;
+        camera.position.z -= direction.x * 10.0 * delta;
+    }
 
     renderer.render(scene, camera);
     prevTime = time;
