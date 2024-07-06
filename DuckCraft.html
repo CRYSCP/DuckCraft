@@ -1,17 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GMBase Minecraft-Inspired World - Block Interaction</title>
+    <title>DuckCraft - GMBase Minecraft-Inspired World</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Fredoka+One&display=swap">
     <style>
-        body { margin: 0; overflow: hidden; }
-        #info {
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Fredoka One', Arial, sans-serif;
+            background-color: #87ceeb;
+        }
+        #info-panel {
             position: absolute;
             top: 10px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-family: Arial, sans-serif;
-            pointer-events: none;
+            left: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        #info {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+        }
+        #info h1 {
+            font-size: 32px;
+            margin: 0;
+            font-family: 'Permanent Marker', Arial, sans-serif;
+            letter-spacing: 2px;
+        }
+        #control-panel {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
         #crosshair {
             position: absolute;
@@ -24,159 +54,467 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
         }
+        select, input[type="color"], input[type="range"] {
+            padding: 5px;
+            border-radius: 10px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: black;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        input[type="color"] {
+            width: 30px;
+            height: 30px;
+        }
+        input[type="range"] {
+            width: 100px;
+            -webkit-appearance: none;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            outline: none;
+            border-radius: 5px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: white;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        #screenshot-btn, #info-btn {
+            padding: 8px 12px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #screenshot-btn {
+            background-color: rgba(76, 175, 80, 0.8);
+        }
+        #screenshot-btn:hover {
+            background-color: rgba(69, 160, 73, 0.8);
+            transform: scale(1.05);
+        }
+        #info-btn {
+            background-color: rgba(0, 123, 255, 0.8);
+        }
+        #info-btn:hover {
+            background-color: rgba(0, 105, 217, 0.8);
+            transform: scale(1.05);
+        }
+        #logo {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 80px;
+            height: auto;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-size: 12px;
+            margin-bottom: 2px;
+            color: black;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        #info-modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        #info-modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        #close-btn:hover,
+        #close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div id="info">GMBase Minecraft-Inspired World<br>WASD to move, Arrow keys to look around<br>Left click to place block, Right click to remove block</div>
+    <div id="info-panel">
+        <div id="info">
+            <img src="https://i.ibb.co/prvkTjZ/GMB-rainbow-glasses-removebg-preview.png" alt="GMB-rainbow-glasses" style="height: 50px; margin-right: 15px;">
+            <h1>DuckCraft</h1>
+        </div>
+        <div id="control-panel">
+            <div class="control-group">
+                <label for="tile-shape">Shape:</label>
+                <select id="tile-shape">
+                    <option value="cube">Cube</option>
+                    <option value="sphere">Sphere</option>
+                    <option value="cylinder">Cylinder</option>
+                    <option value="cone">Cone</option>
+                    <option value="torus">Torus</option>
+                    <option value="icosahedron">Icosahedron</option>
+                    <option value="pyramid">Pyramid</option>
+                    <option value="octahedron">Octahedron</option>
+                    <option value="gmb">GMB</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="color-picker">Color:</label>
+                <input type="color" id="color-picker" value="#00ff00">
+            </div>
+            <div class="control-group">
+                <label for="size-slider">Size:</label>
+                <input type="range" id="size-slider" min="0.1" max="5" step="0.1" value="1">
+            </div>
+            <div class="control-group">
+                <label for="texture-select">Texture:</label>
+                <select id="texture-select">
+                    <option value="solid">Solid Color</option>
+                    <option value="gradient">Gradient</option>
+                    <option value="wood">Wood</option>
+                </select>
+            </div>
+            <button id="screenshot-btn">Take Screenshot</button>
+            <button id="info-btn">Info</button>
+        </div>
+    </div>
     <div id="crosshair"></div>
+    <img id="logo" src="https://i.ibb.co/s6mpMWL/GMB-waddle-gmbase-icon-craft.png" alt="GMBase Logo">
+
+    <div id="info-modal">
+        <div id="info-modal-content">
+            <span id="close-btn">&times;</span>
+            <p>WASD to move, Mouse to look around</p>
+            <p>Left click to place block, Right click to remove block</p>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        let scene, camera, renderer, raycaster;
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
-        let rotateLeft = false, rotateRight = false, rotateUp = false, rotateDown = false;
-        let prevTime = performance.now();
-        const velocity = new THREE.Vector3();
-        const direction = new THREE.Vector3();
-        let world = {};
+let scene, camera, renderer, raycaster;
+let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+let prevTime = performance.now();
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+let world = {};
+let selectedTileShape = 'cube';
+let selectedColor = '#00ff00';
+let selectedSize = 1;
+let selectedTexture = 'solid';
 
-        const blockTypes = {
-            'grass': 0x00ff00,
-            'dirt': 0x8B4513,
-            'stone': 0x808080,
-            'gmb_coin': 0xffd700,
-            'magic_bean': 0x8a2be2,
-            'pond_water': 0x4169e1,
-            'gmb_vault': 0xc0c0c0
-        };
+function init() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87CEEB);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 5, 10);
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 0);
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
 
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+    raycaster = new THREE.Raycaster();
 
-            raycaster = new THREE.Raycaster();
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+    scene.add(ambientLight);
 
-            generateTerrain();
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(1, 1, 0.5).normalize();
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
 
-            document.addEventListener('keydown', onKeyDown, false);
-            document.addEventListener('keyup', onKeyUp, false);
-            document.addEventListener('mousedown', onMouseDown, false);
-            window.addEventListener('resize', onWindowResize, false);
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('resize', onWindowResize, false);
+
+    document.getElementById('tile-shape').addEventListener('change', updateSelectedTileShape);
+    document.getElementById('color-picker').addEventListener('input', updateSelectedColor);
+    document.getElementById('size-slider').addEventListener('input', updateSelectedSize);
+    document.getElementById('texture-select').addEventListener('change', updateSelectedTexture);
+    document.getElementById('screenshot-btn').addEventListener('click', takeScreenshot);
+
+    renderer.domElement.addEventListener('click', () => {
+        if (document.pointerLockElement !== renderer.domElement) {
+            renderer.domElement.requestPointerLock();
         }
+    });
+}
 
-        function generateTerrain() {
-            for (let x = -10; x < 10; x++) {
-                for (let z = -10; z < 10; z++) {
-                    createBlock(x, 0, z, 'grass');
-                    if (Math.random() < 0.1) {
-                        createBlock(x, 1, z, 'gmb_coin');
-                    }
-                }
+function createBlock(x, y, z, color, shape, size, texture) {
+    let geometry;
+    switch (shape) {
+        case 'sphere':
+            geometry = new THREE.SphereGeometry(size / 2, 32, 32);
+            break;
+        case 'cylinder':
+            geometry = new THREE.CylinderGeometry(size / 2, size / 2, size, 32);
+            break;
+        case 'cone':
+            geometry = new THREE.ConeGeometry(size / 2, size, 32);
+            break;
+        case 'torus':
+            geometry = new THREE.TorusGeometry(size / 2, size / 4, 16, 100);
+            break;
+        case 'icosahedron':
+            geometry = new THREE.IcosahedronGeometry(size / 2);
+            break;
+        case 'pyramid':
+            geometry = new THREE.ConeGeometry(size / 2, size, 4);
+            break;
+        case 'octahedron':
+            geometry = new THREE.OctahedronGeometry(size / 2);
+            break;
+        case 'gmb':
+            return createGMBGeometry(x, y, z, size);
+        default:
+            geometry = new THREE.BoxGeometry(size, size, size);
+    }
+
+    let material;
+    const textureLoader = new THREE.TextureLoader();
+
+    switch (texture) {
+        case 'gradient':
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const context = canvas.getContext('2d');
+            const gradient = context.createLinearGradient(0, 0, 256, 256);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, '#ffffff');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 256, 256);
+            const gradientTexture = new THREE.CanvasTexture(canvas);
+            material = new THREE.MeshPhongMaterial({ map: gradientTexture });
+            break;
+        case 'wood':
+            const woodTexture = textureLoader.load('https://threejs.org/examples/textures/hardwood2_diffuse.jpg');
+            material = new THREE.MeshPhongMaterial({ map: woodTexture, color: color });
+            break;
+        default:
+            material = new THREE.MeshPhongMaterial({ color: color });
+    }
+
+    material.shininess = 30;
+    material.specular = new THREE.Color(0x111111);
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, y, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    scene.add(mesh);
+    world[`${x},${y},${z}`] = { object: mesh, color, shape, size, texture };
+    return mesh;
+}
+
+function createGMBGeometry(x, y, z, size) {
+    const group = new THREE.Group();
+    const cubeSize = size / 5;
+    const colors = [0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x8b00ff];
+
+    // G
+    for (let i = 0; i < 5; i++) {
+        createBlock(x + i * cubeSize, y, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+        createBlock(x, y + i * cubeSize, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+        if (i > 0 && i < 4) createBlock(x + 4 * cubeSize, y + i * cubeSize, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+    }
+    createBlock(x + cubeSize, y + 4 * cubeSize, z, colors[5], 'cube', cubeSize, 'solid');
+    createBlock(x + 2 * cubeSize, y + 4 * cubeSize, z, colors[0], 'cube', cubeSize, 'solid');
+    createBlock(x + 3 * cubeSize, y + 4 * cubeSize, z, colors[1], 'cube', cubeSize, 'solid');
+    createBlock(x + 3 * cubeSize, y + 2 * cubeSize, z, colors[2], 'cube', cubeSize, 'solid');
+
+    // M
+    for (let i = 0; i < 5; i++) {
+        createBlock(x + 6 * cubeSize, y + i * cubeSize, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+        createBlock(x + 10 * cubeSize, y + i * cubeSize, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+    }
+    createBlock(x + 7 * cubeSize, y + 3 * cubeSize, z, colors[3], 'cube', cubeSize, 'solid');
+    createBlock(x + 8 * cubeSize, y + 2 * cubeSize, z, colors[4], 'cube', cubeSize, 'solid');
+    createBlock(x + 9 * cubeSize, y + 3 * cubeSize, z, colors[5], 'cube', cubeSize, 'solid');
+
+    // B
+    for (let i = 0; i < 5; i++) {
+        createBlock(x + 12 * cubeSize, y + i * cubeSize, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+        if (i > 0 && i < 4) createBlock(x + 16 * cubeSize, y + i * cubeSize, z, colors[i % colors.length], 'cube', cubeSize, 'solid');
+    }
+    createBlock(x + 13 * cubeSize, y, z, colors[5], 'cube', cubeSize, 'solid');
+    createBlock(x + 14 * cubeSize, y, z, colors[0], 'cube', cubeSize, 'solid');
+    createBlock(x + 15 * cubeSize, y, z, colors[1], 'cube', cubeSize, 'solid');
+    createBlock(x + 13 * cubeSize, y + 4 * cubeSize, z, colors[2], 'cube', cubeSize, 'solid');
+    createBlock(x + 14 * cubeSize, y + 4 * cubeSize, z, colors[3], 'cube', cubeSize, 'solid');
+    createBlock(x + 15 * cubeSize, y + 4 * cubeSize, z, colors[4], 'cube', cubeSize, 'solid');
+    createBlock(x + 13 * cubeSize, y + 2 * cubeSize, z, colors[5], 'cube', cubeSize, 'solid');
+    createBlock(x + 14 * cubeSize, y + 2 * cubeSize, z, colors[0], 'cube', cubeSize, 'solid');
+    createBlock(x + 15 * cubeSize, y + 2 * cubeSize, z, colors[1], 'cube', cubeSize, 'solid');
+
+    return group;
+}
+
+function onKeyDown(event) {
+    switch (event.code) {
+        case 'KeyW': moveForward = true; break;
+        case 'KeyA': moveLeft = true; break;
+        case 'KeyS': moveBackward = true; break;
+        case 'KeyD': moveRight = true; break;
+    }
+}
+
+function onKeyUp(event) {
+    switch (event.code) {
+        case 'KeyW': moveForward = false; break;
+        case 'KeyA': moveLeft = false; break;
+        case 'KeyS': moveBackward = false; break;
+        case 'KeyD': moveRight = false; break;
+    }
+}
+
+function onMouseMove(event) {
+    if (document.pointerLockElement === renderer.domElement) {
+        camera.rotation.y -= event.movementX * 0.002;
+        camera.rotation.x -= event.movementY * 0.002;
+        camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+    }
+}
+
+function onMouseDown(event) {
+    if (document.pointerLockElement !== renderer.domElement) return;
+
+    const mouse = new THREE.Vector2(0, 0);
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (event.button === 0) { // Left click: place block
+        let position;
+        if (intersects.length > 0) {
+            position = intersects[0].point.add(intersects[0].face.normal.multiplyScalar(selectedSize / 2));
+        } else {
+            position = camera.position.clone().add(raycaster.ray.direction.multiplyScalar(5));
+        }
+        const roundedPos = new THREE.Vector3(
+            Math.round(position.x / selectedSize) * selectedSize,
+            Math.round(position.y / selectedSize) * selectedSize,
+            Math.round(position.z / selectedSize) * selectedSize
+        );
+        if (!world[`${roundedPos.x},${roundedPos.y},${roundedPos.z}`]) {
+            createBlock(roundedPos.x, roundedPos.y, roundedPos.z, selectedColor, selectedTileShape, selectedSize, selectedTexture);
+        }
+    } else if (event.button === 2) { // Right click: remove block
+        if (intersects.length > 0) {
+            const object = intersects[0].object;
+            const pos = object.position;
+            const key = `${pos.x},${pos.y},${pos.z}`;
+            if (world[key]) {
+                scene.remove(world[key].object);
+                delete world[key];
             }
         }
+    }
+}
 
-        function createBlock(x, y, z, type) {
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshBasicMaterial({ color: blockTypes[type] });
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(x, y, z);
-            scene.add(mesh);
-            world[`${x},${y},${z}`] = { mesh, type };
-        }
+function updateSelectedTileShape() {
+    selectedTileShape = document.getElementById('tile-shape').value;
+}
 
-        function onKeyDown(event) {
-            switch (event.code) {
-                case 'KeyW': moveForward = true; break;
-                case 'KeyA': moveLeft = true; break;
-                case 'KeyS': moveBackward = true; break;
-                case 'KeyD': moveRight = true; break;
-                case 'ArrowLeft': rotateLeft = true; break;
-                case 'ArrowRight': rotateRight = true; break;
-                case 'ArrowUp': rotateUp = true; break;
-                case 'ArrowDown': rotateDown = true; break;
-            }
-        }
+function updateSelectedColor(event) {
+    selectedColor = event.target.value;
+}
 
-        function onKeyUp(event) {
-            switch (event.code) {
-                case 'KeyW': moveForward = false; break;
-                case 'KeyA': moveLeft = false; break;
-                case 'KeyS': moveBackward = false; break;
-                case 'KeyD': moveRight = false; break;
-                case 'ArrowLeft': rotateLeft = false; break;
-                case 'ArrowRight': rotateRight = false; break;
-                case 'ArrowUp': rotateUp = false; break;
-                case 'ArrowDown': rotateDown = false; break;
-            }
-        }
+function updateSelectedSize(event) {
+    selectedSize = parseFloat(event.target.value);
+}
 
-        function onMouseDown(event) {
-            event.preventDefault();
-            const mouse = new THREE.Vector2(
-                (event.clientX / window.innerWidth) * 2 - 1,
-                -(event.clientY / window.innerHeight) * 2 + 1
-            );
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children);
+function updateSelectedTexture() {
+    selectedTexture = document.getElementById('texture-select').value;
+}
 
-            if (intersects.length > 0) {
-                const intersect = intersects[0];
-                if (event.button === 0) { // Left click: place block
-                    const pos = intersect.point.add(intersect.face.normal);
-                    createBlock(Math.round(pos.x), Math.round(pos.y), Math.round(pos.z), 'gmb_coin');
-                } else if (event.button === 2) { // Right click: remove block
-                    const pos = intersect.object.position;
-                    const key = `${Math.round(pos.x)},${Math.round(pos.y)},${Math.round(pos.z)}`;
-                    if (world[key]) {
-                        scene.remove(world[key].mesh);
-                        delete world[key];
-                    }
-                }
-            }
-        }
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
+function takeScreenshot() {
+    renderer.render(scene, camera);
+    const screenshot = renderer.domElement.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = screenshot;
+    link.download = 'duckcraft-screenshot.png';
+    link.click();
+}
 
-        function animate() {
-            requestAnimationFrame(animate);
+function animate() {
+    requestAnimationFrame(animate);
 
-            const time = performance.now();
-            const delta = (time - prevTime) / 1000;
+    const time = performance.now();
+    const delta = (time - prevTime) / 1000;
 
-            velocity.x -= velocity.x * 10.0 * delta;
-            velocity.z -= velocity.z * 10.0 * delta;
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
 
-            direction.z = Number(moveForward) - Number(moveBackward);
-            direction.x = Number(moveRight) - Number(moveLeft);
-            direction.normalize();
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveRight) - Number(moveLeft);
+    direction.normalize();
 
-            if (moveForward || moveBackward) velocity.z -= direction.z * 10.0 * delta;
-            if (moveLeft || moveRight) velocity.x -= direction.x * 10.0 * delta;
+    if (moveForward || moveBackward) velocity.z -= direction.z * 10.0 * delta;
+    if (moveLeft || moveRight) velocity.x -= direction.x * 10.0 * delta;
 
-            camera.translateX(velocity.x * delta);
-            camera.translateZ(velocity.z * delta);
+    camera.translateX(velocity.x * delta);
+    camera.translateZ(velocity.z * delta);
 
-            if (rotateLeft) camera.rotation.y += 0.02;
-            if (rotateRight) camera.rotation.y -= 0.02;
-            if (rotateUp) camera.rotation.x += 0.02;
-            if (rotateDown) camera.rotation.x -= 0.02;
+    renderer.render(scene, camera);
+    prevTime = time;
+}
 
-            renderer.render(scene, camera);
-            prevTime = time;
-        }
+init();
+animate();
 
-        init();
-        animate();
+// Modal script
+var modal = document.getElementById("info-modal");
+var btn = document.getElementById("info-btn");
+var span = document.getElementById("close-btn");
+
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
     </script>
 </body>
 </html>
