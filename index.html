@@ -141,7 +141,7 @@
         }
         /* Modal styles */
         #info-modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             z-index: 1;
             left: 0;
@@ -213,6 +213,10 @@
                     <option value="wood">Wood</option>
                 </select>
             </div>
+            <div class="control-group">
+                <label for="speed-slider">Movement Speed:</label>
+                <input type="range" id="speed-slider" min="1" max="10" step="0.1" value="5">
+            </div>
             <button id="screenshot-btn">Take Screenshot</button>
             <button id="info-btn">Info</button>
         </div>
@@ -241,6 +245,7 @@ let selectedTileShape = 'cube';
 let selectedColor = '#00ff00';
 let selectedSize = 1;
 let selectedTexture = 'solid';
+let movementSpeed = 5.0;
 
 function init() {
     scene = new THREE.Scene();
@@ -275,6 +280,7 @@ function init() {
     document.getElementById('color-picker').addEventListener('input', updateSelectedColor);
     document.getElementById('size-slider').addEventListener('input', updateSelectedSize);
     document.getElementById('texture-select').addEventListener('change', updateSelectedTexture);
+    document.getElementById('speed-slider').addEventListener('input', updateMovementSpeed);
     document.getElementById('screenshot-btn').addEventListener('click', takeScreenshot);
 
     renderer.domElement.addEventListener('click', () => {
@@ -394,7 +400,6 @@ function createGMBGeometry(x, y, z, size) {
 
     return group;
 }
-
 function onKeyDown(event) {
     switch (event.code) {
         case 'KeyW': moveForward = true; break;
@@ -472,6 +477,10 @@ function updateSelectedTexture() {
     selectedTexture = document.getElementById('texture-select').value;
 }
 
+function updateMovementSpeed() {
+    movementSpeed = parseFloat(document.getElementById('speed-slider').value);
+}
+
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -486,9 +495,6 @@ function takeScreenshot() {
     link.download = 'duckcraft-screenshot.png';
     link.click();
 }
-
-// Add this variable at the top of your script, with the other global variables
-let movementSpeed = 5.0; // Adjust this value to change the movement speed
 
 function animate() {
     requestAnimationFrame(animate);
@@ -524,6 +530,7 @@ function animate() {
     renderer.render(scene, camera);
     prevTime = time;
 }
+
 init();
 animate();
 
