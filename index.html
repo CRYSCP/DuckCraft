@@ -496,16 +496,18 @@ function animate() {
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
 
+    // Correct direction assignment
     direction.z = Number(moveForward) - Number(moveBackward);
     direction.x = Number(moveRight) - Number(moveLeft);
     direction.normalize();
 
+    // Apply movement
     if (moveForward || moveBackward) velocity.z -= direction.z * 10.0 * delta;
     if (moveLeft || moveRight) velocity.x -= direction.x * 10.0 * delta;
 
-    // Apply movement relative to camera's rotation
-    camera.position.x += velocity.x * delta * Math.sin(camera.rotation.y) + velocity.z * delta * Math.cos(camera.rotation.y);
-    camera.position.z += velocity.x * delta * -Math.cos(camera.rotation.y) + velocity.z * delta * Math.sin(camera.rotation.y);
+    // Move the camera
+    camera.translateZ(velocity.z * delta);
+    camera.translateX(velocity.x * delta);
 
     renderer.render(scene, camera);
     prevTime = time;
