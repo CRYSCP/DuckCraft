@@ -501,13 +501,14 @@ function animate() {
     direction.x = Number(moveRight) - Number(moveLeft);
     direction.normalize();
 
-    // Apply movement
+    // Apply movement relative to camera orientation
     if (moveForward || moveBackward) velocity.z -= direction.z * 10.0 * delta;
     if (moveLeft || moveRight) velocity.x -= direction.x * 10.0 * delta;
 
     // Move the camera
-    camera.translateZ(velocity.z * delta);
-    camera.translateX(velocity.x * delta);
+    const movementVector = new THREE.Vector3(velocity.x * delta, 0, velocity.z * delta);
+    movementVector.applyQuaternion(camera.quaternion);
+    camera.position.add(movementVector);
 
     renderer.render(scene, camera);
     prevTime = time;
