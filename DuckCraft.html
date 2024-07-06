@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DuckCraft - GMBase Minecraft-Inspired World</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Fredoka+One&display=swap">
+    <title>WaddleCraft - GMBase Minecraft-Inspired World</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Fredoka+One&family=Press+Start+2P&display=swap">
     <style>
         body { 
             margin: 0; 
@@ -29,7 +29,6 @@
             flex-grow: 1;
             display: flex;
             align-items: center;
-            justify-content: center;
             color: black;
         }
         #info h1 {
@@ -86,6 +85,7 @@
         }
         #screenshot-btn, #info-btn {
             padding: 8px 12px;
+            background-color: rgba(76, 175, 80, 0.8);
             color: white;
             border: none;
             border-radius: 10px;
@@ -102,7 +102,15 @@
             transform: scale(1.05);
         }
         #info-btn {
+            padding: 8px 12px;
             background-color: rgba(0, 123, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         #info-btn:hover {
             background-color: rgba(0, 105, 217, 0.8);
@@ -126,8 +134,14 @@
             color: black;
             text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }
+        #gmb-presents {
+            font-family: 'Press Start 2P', Arial, sans-serif;
+            font-size: 16px;
+            margin-right: 15px;
+        }
+        /* Modal styles */
         #info-modal {
-            display: none;
+            display: none; /* Hidden by default */
             position: fixed;
             z-index: 1;
             left: 0;
@@ -164,6 +178,7 @@
 <body>
     <div id="info-panel">
         <div id="info">
+            <span id="gmb-presents">GMB PRESENTS:</span>
             <img src="https://i.ibb.co/prvkTjZ/GMB-rainbow-glasses-removebg-preview.png" alt="GMB-rainbow-glasses" style="height: 50px; margin-right: 15px;">
             <h1>DuckCraft</h1>
         </div>
@@ -205,6 +220,7 @@
     <div id="crosshair"></div>
     <img id="logo" src="https://i.ibb.co/s6mpMWL/GMB-waddle-gmbase-icon-craft.png" alt="GMBase Logo">
 
+    <!-- The Modal -->
     <div id="info-modal">
         <div id="info-modal-content">
             <span id="close-btn">&times;</span>
