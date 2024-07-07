@@ -26,7 +26,6 @@
             justify-content: space-between;
             align-items: center;
             height: auto;
-            z-index: 100;
         }
         @media (min-width: 600px) {
             #info-panel {
@@ -50,7 +49,7 @@
             gap: 15px;
             align-items: center;
             width: 100%;
-            margin-top: 50px;
+            margin-top: 10px;
         }
         @media (min-width: 600px) {
             #control-panel {
@@ -127,6 +126,13 @@
             transform: scale(1.05);
         }
         #menu-btn {
+            background-color: rgba(0, 123, 255, 0.8);
+        }
+        #menu-btn:hover {
+            background-color: rgba(0, 105, 217, 0.8);
+            transform: scale(1.05);
+        }
+        #mobile-menu-btn {
             display: none;
         }
         #mobile-menu-btn {
@@ -209,19 +215,74 @@
             margin: 5px;
         }
         @media (max-width: 600px) {
-            #control-panel {
-                display: none;
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 10px;
-            }
-            #menu-btn {
-                display: none;
-            }
-            #mobile-menu-btn {
-                display: inline-block;
-            }
+    #control-panel {
+        display: none;
+        position: fixed;
+        top: 60px; /* Adjust based on your info-panel height */
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        z-index: 1000;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+@media (max-width: 600px) {
+    .control-group {
+        margin-bottom: 15px;
+    }
+    select, input[type="color"], input[type="range"] {
+        width: 100%;
+        max-width: 200px;
+        height: 40px;
+        font-size: 16px;
+    }
+    label {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    #screenshot-btn, #info-btn {
+        width: 100%;
+        max-width: 200px;
+        height: 40px;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+    #menu-btn {
+        display: none;
+    }
+    #mobile-menu-btn {
+        display: inline-block;
+    }
+    #info-panel {
+        flex-wrap: wrap;
+    }
+    #info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
         }
+@media (max-width: 600px) {
+    #info-panel {
+        flex-wrap: wrap;
+        height: auto;
+        padding-bottom: 10px;
+    }
+    #info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    #mobile-menu-btn {
+        display: inline-block;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    #control-panel {
+        z-index: 1001; /* Ensure it's above other elements */
+    }
+}
     </style>
 </head>
 <body>
@@ -233,48 +294,48 @@
         </div>
         <button id="menu-btn" onclick="toggleMenu()">Menu</button>
         <button id="mobile-menu-btn" onclick="toggleMenu()">Menu</button>
-    </div>
-    <div id="control-panel">
-        <div class="control-group">
-            <label for="tile-shape">Shape:</label>
-            <select id="tile-shape">
-                <option value="cube">Cube</option>
-                <option value="sphere">Sphere</option>
-                <option value="cylinder">Cylinder</option>
-                <option value="cone">Cone</option>
-                <option value="torus">Torus</option>
-                <option value="icosahedron">Icosahedron</option>
-                <option value="pyramid">Pyramid</option>
-                <option value="octahedron">Octahedron</option>
-                <option value="gmb">GMB</option>
-            </select>
+        <div id="control-panel">
+            <div class="control-group">
+                <label for="tile-shape">Shape:</label>
+                <select id="tile-shape">
+                    <option value="cube">Cube</option>
+                    <option value="sphere">Sphere</option>
+                    <option value="cylinder">Cylinder</option>
+                    <option value="cone">Cone</option>
+                    <option value="torus">Torus</option>
+                    <option value="icosahedron">Icosahedron</option>
+                    <option value="pyramid">Pyramid</option>
+                    <option value="octahedron">Octahedron</option>
+                    <option value="gmb">GMB</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="color-picker">Color:</label>
+                <input type="color" id="color-picker" value="#00ff00">
+            </div>
+            <div class="control-group">
+                <label for="size-slider">Size:</label>
+                <input type="range" id="size-slider" min="0.1" max="5" step="0.1" value="1">
+            </div>
+            <div class="control-group">
+                <label for="texture-select">Texture:</label>
+                <select id="texture-select">
+                    <option value="solid">Solid Color</option>
+                    <option value="gradient">Gradient</option>
+                    <option value="wood">Wood</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="fov-slider">Field of View:</label>
+                <input type="range" id="fov-slider" min="60" max="120" step="1" value="75">
+            </div>
+            <div class="control-group">
+                <label for="speed-slider">Movement Speed:</label>
+                <input type="range" id="speed-slider" min="1" max="10" step="0.1" value="5">
+            </div>
+            <button id="screenshot-btn">Take Screenshot</button>
+            <button id="info-btn">Info</button>
         </div>
-        <div class="control-group">
-            <label for="color-picker">Color:</label>
-            <input type="color" id="color-picker" value="#00ff00">
-        </div>
-        <div class="control-group">
-            <label for="size-slider">Size:</label>
-            <input type="range" id="size-slider" min="0.1" max="5" step="0.1" value="1">
-        </div>
-        <div class="control-group">
-            <label for="texture-select">Texture:</label>
-            <select id="texture-select">
-                <option value="solid">Solid Color</option>
-                <option value="gradient">Gradient</option>
-                <option value="wood">Wood</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="fov-slider">Field of View:</label>
-            <input type="range" id="fov-slider" min="60" max="120" step="1" value="75">
-        </div>
-        <div class="control-group">
-            <label for="speed-slider">Movement Speed:</label>
-            <input type="range" id="speed-slider" min="1" max="10" step="0.1" value="5">
-        </div>
-        <button id="screenshot-btn">Take Screenshot</button>
-        <button id="info-btn">Info</button>
     </div>
     <div id="crosshair"></div>
     <img id="logo" src="https://i.ibb.co/s6mpMWL/GMB-waddle-gmbase-icon-craft.png" alt="GMBase Logo">
@@ -383,14 +444,17 @@
         }
 
         function toggleMenu() {
-            const controlPanel = document.getElementById('control-panel');
-            if (isMobile) {
-                controlPanel.style.display = controlPanel.style.display === 'flex' ? 'none' : 'flex';
-                document.getElementById('mobile-menu-btn').innerText = controlPanel.style.display === 'flex' ? 'Close' : 'Menu';
-            } else {
-                controlPanel.style.display = controlPanel.style.display === 'none' || controlPanel.style.display === '' ? 'flex' : 'none';
-            }
-        }
+    const controlPanel = document.getElementById('control-panel');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    
+    if (controlPanel.style.display === 'none' || controlPanel.style.display === '') {
+        controlPanel.style.display = 'flex';
+        mobileMenuBtn.textContent = 'Close';
+    } else {
+        controlPanel.style.display = 'none';
+        mobileMenuBtn.textContent = 'Menu';
+    }
+}
 
         function createBlock(x, y, z, color, shape, size, texture) {
             let geometry;
