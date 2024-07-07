@@ -166,6 +166,21 @@
             text-decoration: none;
             cursor: pointer;
         }
+        #mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: none;
+        }
+        .mobile-btn {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -225,17 +240,22 @@
         <div id="info-modal-content">
             <span id="close-btn">&times;</span>
             <p>Desktop: WASD to move, Mouse to look around</p>
-            <p>Mobile: Use one finger to move, two fingers to look around</p>
+            <p>Mobile: Drag left side to move, right side to look around</p>
             <p>Desktop: Click once to lock, Left click to place block, Right click to remove block</p>
-            <p>Mobile: Double-tap to place block, long press to remove block</p>
+            <p>Mobile: Tap to place block, long press to remove block</p>
             <p>Desktop: Space to move up, Shift to move down</p>
-            <p>Mobile: Double-tap with two fingers to move up, use two fingers and swipe down to move down</p>
+            <p>Mobile: Use on-screen buttons to move up/down</p>
         </div>
+    </div>
+
+    <div id="mobile-controls">
+        <button id="mobile-up" class="mobile-btn">↑</button>
+        <button id="mobile-down" class="mobile-btn">↓</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-    let scene, camera, renderer, raycaster;
+        let scene, camera, renderer, raycaster;
     let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, moveUp = false, moveDown = false;
     let prevTime = performance.now();
     const velocity = new THREE.Vector3();
@@ -248,8 +268,7 @@
     let movementSpeed = 5.0;
     let fov = 75;
     let isMobile = false;
-    let touchStartX, touchStartY, touchEndX, touchEndY;
-    let lastTap = 0;
+    let touchStartX, touchStartY;
 
     function init() {
         scene = new THREE.Scene();
@@ -275,21 +294,7 @@
         scene.add(directionalLight);
 
         checkMobile();
-        if (isMobile) {
-            renderer.domElement.addEventListener('touchstart', onTouchStart, false);
-            renderer.domElement.addEventListener('touchmove', onTouchMove, false);
-            renderer.domElement.addEventListener('touchend', onTouchEnd, false);
-        } else {
-            document.addEventListener('keydown', onKeyDown, false);
-            document.addEventListener('keyup', onKeyUp, false);
-            document.addEventListener('mousedown', onMouseDown, false);
-            document.addEventListener('mousemove', onMouseMove, false);
-            renderer.domElement.addEventListener('click', () => {
-                if (document.pointerLockElement !== renderer.domElement) {
-                    renderer.domElement.requestPointerLock();
-                }
-            });
-        }
+        setupEventListeners();
 
         window.addEventListener('resize', onWindowResize, false);
 
@@ -304,6 +309,32 @@
 
     function checkMobile() {
         isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.getElementById('mobile-controls').style.display = 'block';
+        }
+    }
+
+    function setupEventListeners() {
+        if (isMobile) {
+            renderer.domElement.addEventListener('touchstart', onTouchStart, false);
+            renderer.domElement.addEventListener('touchmove', onTouchMove, false);
+            renderer.domElement.addEventListener('touchend', onTouchEnd, false);
+            document.getElementById('mobile-up').addEventListener('touchstart', () => moveUp = true, false);
+            document.getElementById('mobile-up').addEventListener('touchend', () => moveUp = false, false);
+            document.getElementById('mobile-down').addEventListener('touchstart', () => moveDown = true, false);
+            document.getElementById('mobile-down').addEventListener('touchend', () => moveDown = false, false);
+        } else {
+            document.addEventListener('keydown', onKeyDown, false);
+            document.addEventListener('keyup', onKeyUp, false);
+            document.addEventListener('mousedown', onMouseDown, false);
+            document.addEventListener('mousemove', onMouseMove, false);
+            document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
+            renderer.domElement.addEventListener('click', () => {
+                if (document.pointerLockElement !== renderer.domElement) {
+                    renderer.domElement.requestPointerLock();
+                }
+            });
+        }
     }
 
     function createBlock(x, y, z, color, shape, size, texture) {
@@ -416,6 +447,7 @@
 
         return group;
     }
+
     function onKeyDown(event) {
         switch (event.code) {
             case 'KeyW': moveForward = true; break;
@@ -464,62 +496,33 @@
         event.preventDefault();
         touchStartX = event.touches[0].pageX;
         touchStartY = event.touches[0].pageY;
-
-        if (event.touches.length === 2) {
-            const now = new Date().getTime();
-            const timeSince = now - lastTap;
-            if (timeSince < 300) {
-                // Double tap with two fingers
-                moveUp = true;
-            }
-            lastTap = now;
-        }
     }
 
     function onTouchMove(event) {
         event.preventDefault();
-        if (event.touches.length === 2) {
-            const touch1 = event.touches[0];
-            const touch2 = event.touches[1];
-            const diffX = touch1.pageX - touch2.pageX;
-            const diffY = touch1.pageY - touch2.pageY;
-            
-            camera.rotation.y -= diffX * 0.0002;
-            camera.rotation.x -= diffY * 0.0002;
-            camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
-        } else if (event.touches.length === 1) {
-            touchEndX = event.touches[0].pageX;
-            touchEndY = event.touches[0].pageY;
-            
-            const diffX = touchEndX - touchStartX;
-            const diffY = touchEndY - touchStartY;
-            
-            moveForward = diffY < -10;
-            moveBackward = diffY > 10;
-            moveLeft = diffX < -10;
-            moveRight = diffX > 10;
-        }
+        const touchEndX = event.touches[0].pageX;
+        const touchEndY = event.touches[0].pageY;
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        camera.rotation.y -= dx * 0.01;
+        camera.rotation.x -= dy * 0.01;
+        camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+
+        touchStartX = touchEndX;
+        touchStartY = touchEndY;
     }
 
     function onTouchEnd(event) {
         event.preventDefault();
-        moveForward = moveBackward = moveLeft = moveRight = moveUp = moveDown = false;
-
         if (event.touches.length === 0) {
-            const now = new Date().getTime();
-            const timeSince = now - lastTap;
-            if (timeSince < 300) {
-                // Double tap
-                const mouse = new THREE.Vector2(0, 0);
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObjects(scene.children, true);
-                placeBlock(intersects);
-            }
-            lastTap = now;
-        }
-
-        if (event.touches.length === 2) {
-            moveDown = true;
+            const mouse = new THREE.Vector2(
+                (event.changedTouches[0].clientX / window.innerWidth) * 2 - 1,
+                -(event.changedTouches[0].clientY / window.innerHeight) * 2 + 1
+            );
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            placeBlock(intersects);
         }
     }
 
@@ -563,7 +566,6 @@
     function updateSelectedSize(event) {
         selectedSize = parseFloat(event.target.value);
     }
-
     function updateSelectedTexture() {
         selectedTexture = document.getElementById('texture-select').value;
     }
