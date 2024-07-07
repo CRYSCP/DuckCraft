@@ -23,26 +23,40 @@
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            height: 60px;
+            height: auto;
+        }
+        @media (min-width: 600px) {
+            #info-panel {
+                flex-direction: row;
+                height: 60px;
+            }
         }
         #info {
-            flex-grow: 1;
             display: flex;
             align-items: center;
             color: black;
         }
         #info h1 {
-            font-size: 32px;
+            font-size: 24px;
             margin: 0;
             font-family: 'Permanent Marker', Arial, sans-serif;
             letter-spacing: 2px;
         }
         #control-panel {
             display: flex;
+            flex-direction: column;
             gap: 15px;
             align-items: center;
+            width: 100%;
+        }
+        @media (min-width: 600px) {
+            #control-panel {
+                flex-direction: row;
+                width: auto;
+            }
         }
         #crosshair {
             position: absolute;
@@ -121,6 +135,7 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            align-items: center;
         }
         label {
             font-size: 12px;
@@ -505,9 +520,18 @@
         const dx = touchEndX - touchStartX;
         const dy = touchEndY - touchStartY;
 
-        camera.rotation.y -= dx * 0.01;
-        camera.rotation.x -= dy * 0.01;
-        camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+        if (event.touches[0].pageX < window.innerWidth / 2) {
+            // Movement controls
+            moveForward = dy < -30;
+            moveBackward = dy > 30;
+            moveLeft = dx < -30;
+            moveRight = dx > 30;
+        } else {
+            // Look controls
+            camera.rotation.y -= dx * 0.005;
+            camera.rotation.x -= dy * 0.005;
+            camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+        }
 
         touchStartX = touchEndX;
         touchStartY = touchEndY;
@@ -515,6 +539,10 @@
 
     function onTouchEnd(event) {
         event.preventDefault();
+        moveForward = false;
+        moveBackward = false;
+        moveLeft = false;
+        moveRight = false;
         if (event.touches.length === 0) {
             const mouse = new THREE.Vector2(
                 (event.changedTouches[0].clientX / window.innerWidth) * 2 - 1,
