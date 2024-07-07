@@ -100,7 +100,7 @@
             cursor: pointer;
             border-radius: 50%;
         }
-        #screenshot-btn, #info-btn, #menu-btn {
+        #screenshot-btn, #info-btn, #menu-btn, #mobile-menu-btn {
             padding: 8px 12px;
             background-color: rgba(76, 175, 80, 0.8);
             color: white;
@@ -129,6 +129,16 @@
             background-color: rgba(0, 123, 255, 0.8);
         }
         #menu-btn:hover {
+            background-color: rgba(0, 105, 217, 0.8);
+            transform: scale(1.05);
+        }
+        #mobile-menu-btn {
+            display: none;
+        }
+        #mobile-menu-btn {
+            background-color: rgba(0, 123, 255, 0.8);
+        }
+        #mobile-menu-btn:hover {
             background-color: rgba(0, 105, 217, 0.8);
             transform: scale(1.05);
         }
@@ -204,6 +214,14 @@
             font-size: 24px;
             margin: 5px;
         }
+        @media (max-width: 600px) {
+            #control-panel {
+                display: none;
+            }
+            #mobile-menu-btn {
+                display: inline-block;
+            }
+        }
     </style>
 </head>
 <body>
@@ -214,6 +232,7 @@
             <h1>DuckCraft</h1>
         </div>
         <button id="menu-btn" onclick="toggleMenu()">Menu</button>
+        <button id="mobile-menu-btn" onclick="toggleMenu()">Menu</button>
         <div id="control-panel">
             <div class="control-group">
                 <label for="tile-shape">Shape:</label>
@@ -336,6 +355,7 @@
             if (isMobile) {
                 document.getElementById('mobile-controls').style.display = 'block';
                 document.getElementById('control-panel').style.display = 'none';
+                document.getElementById('mobile-menu-btn').style.display = 'inline-block';
             }
         }
 
